@@ -16,14 +16,16 @@ jobs:
           sudo apt-get install -y gcc-arm-linux-gnueabihf make
 
       - name: Build fingerprint driver
+        working-directory: kiro_source
         run: |
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- clean
           make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
 
       - name: Upload driver artifact
         uses: actions/upload-artifact@v4
         with:
           name: fingerprint-driver
-          path: "*.ko"
+          path: kiro_source/*.ko
 
   deploy:
     needs: build
