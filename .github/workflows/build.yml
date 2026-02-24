@@ -8,45 +8,44 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install ARM toolchain
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-arm-linux-gnueabihf make
-    
-    - name: Build fingerprint driver
-      run: |
-        make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
-    
-    - name: Upload driver artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: fingerprint-driver
-        path: *.ko
+      - uses: actions/checkout@v4
+
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-linux-gnueabihf make
+
+      - name: Build fingerprint driver
+        run: |
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+
+      - name: Upload driver artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fingerprint-driver
+          path: "*.ko"
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
     steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: fingerprint-driver
-    
-    - name: Add known hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H 192.168.1.100 >> ~/.ssh/known_hosts
-    
-    - name: Deploy to i.MX6ULL
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: 192.168.1.100
-        username: root
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cp *.ko /lib/modules/
-          depmod -a
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fingerprint-driver
+
+      - name: Add known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 192.168.1.100 >> ~/.ssh/known_hosts
+
+      - name: Deploy to i.MX6ULL
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 192.168.1.100
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cp *.ko /lib/modules/
+            depmod -a
