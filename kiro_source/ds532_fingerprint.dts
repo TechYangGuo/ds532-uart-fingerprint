@@ -1,0 +1,65 @@
+/*
+ * DS532指纹模块设备树配置
+ * 
+ * 平台: NXP IMX6ULL
+ * UART: UART6 (/dev/ttymxc5)
+ * GPIO: GPIO4_IO21 (触摸中断输入)
+ * 
+ * 使用方法：
+ * 1. 将此节点添加到主设备树 (100ask_imx6ull-14x14.dts)
+ * 2. 或者编译为设备树overlay
+ * 
+ * 编译命令：
+ *   dtc -I dts -O dtb -o ds532_fingerprint.dtbo ds532_fingerprint.dts
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "fsl,imx6ull-14x14", "fsl,imx6ull";
+	
+	fragment@0 {
+		target-path = "/";
+		__overlay__ {
+			ds532_fingerprint: ds532-uart {
+				compatible = "ds532-uart";
+				status = "okay";
+				
+				/* UART配置 - 指向UART6 */
+				/* 注意：需要确保UART6已在主设备树中启用 */
+				
+				/* GPIO配置 - 触摸中断引脚 */
+				/* GPIO4_IO21 对应 J1.0 扩展接口 */
+				touch-irq-gpios = <&gpio4 21 0>;  /* GPIO_ACTIVE_HIGH */
+				
+				/* 串口参数 */
+				baudrate = <57600>;
+				parity = "none";
+				databits = <8>;
+				stopbits = <1>;
+			};
+		};
+	};
+};
+
+/*
+ * 如果直接添加到主设备树，使用以下格式：
+ * 
+ * / {
+ *     ds532_fingerprint: ds532-uart {
+ *         compatible = "ds532-uart";
+ *         status = "okay";
+ *         touch-irq-gpios = <&gpio4 21 0>;
+ *         baudrate = <57600>;
+ *     };
+ * };
+ * 
+ * 同时确保UART6已启用：
+ * 
+ * &uart6 {
+ *     pinctrl-names = "default";
+ *     pinctrl-0 = <&pinctrl_uart6>;
+ *     status = "okay";
+ * };
+ */

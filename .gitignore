@@ -1,0 +1,62 @@
+# ============================================
+# Git 忽略规则 - 只管理 Kiro 生成的内容
+# ============================================
+
+# -------------------- 忽略用户原有文件 --------------------
+# 顶层原有文件（不是 Kiro 生成的）
+/fingerprint.dts
+/fingerprint_test.c
+/fingerprint_uart.c
+/fingerprint_test
+/Makefile
+/README.md
+/readme.txt
+
+# 原始厂商资料目录
+/source/
+
+# IDE 和编辑器配置
+/.vs/
+/.vscode/
+
+# -------------------- kiro_source/ 编译产物 --------------------
+# 内核模块编译产物
+kiro_source/*.o
+kiro_source/*.ko
+kiro_source/*.mod
+kiro_source/*.mod.c
+kiro_source/*.mod.o
+kiro_source/.*.cmd
+kiro_source/.tmp_versions/
+kiro_source/modules.order
+kiro_source/Module.symvers
+
+# 用户空间程序编译产物
+kiro_source/user/*app          # 屏蔽所有 *app 可执行文件
+kiro_source/user/*.o           # 屏蔽目标文件
+
+# -------------------- 操作系统和临时文件 --------------------
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+*.log
+*.tmp
+
+# ============================================
+# 需要版本控制的文件（Kiro 生成的内容）
+# ============================================
+# 只管理以下目录和文件：
+# ✅ .kiro/specs/ds532-uart-driver/**/*
+# ✅ kiro_source/*.c
+# ✅ kiro_source/*.h
+# ✅ kiro_source/Makefile
+# ✅ kiro_source/*.dts
+# ✅ kiro_source/*.md
+# ✅ kiro_source/user/*.c (源码文件)
+# ✅ kiro_source/user/*.h (头文件)
+# ✅ kiro_source/user/Makefile (如果有)
+# ❌ kiro_source/user/*app (编译产物，不管理)
+# ❌ kiro_source/user/*.o (目标文件，不管理)
+# ✅ .gitignore (本文件)

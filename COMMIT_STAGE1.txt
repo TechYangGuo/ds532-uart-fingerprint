@@ -1,0 +1,36 @@
+========================================
+Stage 1 Git 提交命令
+========================================
+
+# 方法1：使用脚本（推荐）
+cd /share/project1/smart_face/fingerprint
+chmod +x kiro_source/STAGE1_COMMIT.sh
+./kiro_source/STAGE1_COMMIT.sh
+
+
+# 方法2：手动执行
+cd /share/project1/smart_face/fingerprint
+
+# 初始化 Git（如果还没初始化）
+git init
+
+# 添加文件
+git add .kiro/specs/ds532-uart-driver/
+git add kiro_source/
+git add .gitignore
+
+# 提交
+git commit -m "Stage 1: 完成最小可运行驱动框架
+
+- Platform 驱动框架
+- 字符设备接口
+- 设备独占访问控制
+- 基本文件操作
+- 测试通过"
+
+# 创建标签
+git tag -a v0.1-stage1 -m "Stage 1: 最小可运行驱动框架"
+
+# 查看结果
+git log --oneline
+git tag
