@@ -1,0 +1,50 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install ARM toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-arm-linux-gnueabihf make
+    
+    - name: Build fingerprint driver
+      run: |
+        make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+    
+    - name: Upload driver artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: fingerprint-driver
+        path: *.ko
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: fingerprint-driver
+    
+    - name: Deploy to i.MX6ULL
+      env:
+        TARGET_HOST: 192.168.1.100
+        TARGET_USER: root
+        TARGET_PASSWORD: ${{ secrets.TARGET_PASSWORD }}
+      run: |
+        sudo apt-get install -y sshpass
+        sshpass -p "" scp *.ko @:/lib/modules/
+        sshpass -p "" ssh @ "depmod -a"
