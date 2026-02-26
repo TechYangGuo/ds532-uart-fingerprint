@@ -171,4 +171,33 @@ struct ds532_dev {
 	struct platform_device *pdev;
 };
 
+/*
+ * ============================================================================
+ * 协议封装函数声明（Stage 2）
+ * ============================================================================
+ */
+
+/* 校验和计算 */
+u16 ds532_calculate_checksum(const u8 *data, size_t len);
+
+/* 数据包构造 */
+int ds532_build_packet(u8 *buffer, u8 pid, u8 cmd, const u8 *data, u16 data_len);
+
+/* 命令包构造 */
+int ds532_build_vfypwd_packet(u8 *buffer, u32 password);
+int ds532_build_genimg_packet(u8 *buffer);
+int ds532_build_img2tz_packet(u8 *buffer, u8 buffer_id);
+int ds532_build_match_packet(u8 *buffer);
+int ds532_build_search_packet(u8 *buffer, u8 buffer_id, u16 start_page, u16 page_num);
+int ds532_build_store_packet(u8 *buffer, u8 buffer_id, u16 page_id);
+
+/* 响应包处理 */
+int ds532_verify_packet(const u8 *buffer, size_t len);
+int ds532_parse_response(const u8 *buffer, size_t len, u8 *ack_code, u8 *data, u16 *data_len);
+
+/*
+ * 注意：内部静态函数不在头文件中声明
+ * 这些函数仅在ds532_driver.c内部使用
+ */
+
 #endif /* __DS532_DRIVER_H__ */

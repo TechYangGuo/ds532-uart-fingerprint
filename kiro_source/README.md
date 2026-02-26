@@ -60,61 +60,133 @@ make clean
 
 ## 部署
 
-### 1. 推送到开发板
+### 快速部署（推荐）
 
 ```bash
+# 编译并部署到目标机
+make all-with-tests && make install
+```
+
+**目标路径**: `/root/smart_lock/driver/ds532/`
+
+### 详细部署步骤
+
+#### 1. 编译驱动和测试程序
+
+```bash
+cd kiro_source
+make all-with-tests
+```
+
+#### 2. 部署到目标机
+
+```bash
+# 完整部署（驱动+测试+文档）
 make install
+
+# 或快速部署（仅驱动+测试）
+make install-quick
 ```
 
-或手动推送：
+#### 3. 在目标机上加载驱动
 
 ```bash
-adb push ds532_driver.ko /root/ds532/
-adb push ds532_test /root/ds532/
-```
+# 连接到目标机
+adb shell
 
-### 2. 加载驱动
+# 进入驱动目录
+cd /root/smart_lock/driver/ds532
 
-```bash
-# 在开发板上执行
-insmod /root/ds532/ds532_driver.ko
-```
+# 加载驱动
+insmod ds532_driver.ko
 
-### 3. 验证设备节点
-
-```bash
+# 验证设备节点
 ls -l /dev/ds532_fp
+
+# 查看内核日志
+dmesg | grep DS532 | tail -20
 ```
 
-应该看到设备节点已创建。
-
-### 4. 运行测试程序
+#### 4. 运行测试程序
 
 ```bash
-cd /root/ds532
-./ds532_test
+# Stage 1测试（基础功能）
+./stage1_ioctl_test1_app
+
+# Stage 2测试（协议封装，无需硬件）
+./stage2_protocol_test
+
+# Stage 3测试（UART通信，需要硬件）
+./stage3_uart_test
+
+# Stage 4测试（GPIO中断，需要硬件）
+./stage4_gpio_test
 ```
+
+#### 5. 卸载驱动
+
+```bash
+rmmod ds532_driver
+```
+
+### 部署文档
+
+详细的部署说明请参考：
+- `DEPLOYMENT_GUIDE.md` - 完整部署指南
+- `QUICK_DEPLOY.md` - 快速部署参考
 
 ## 使用说明
 
-### 测试程序菜单
+### 阶段测试程序
 
-```
-DS532指纹模块测试程序
-====================
-1. 模块初始化 (VfyPwd)
-2. 采集指纹图像 (GenImg)
-3. 生成特征 (Img2Tz)
-4. 指纹匹配 (Match)
-5. 指纹搜索 (Search)
-6. 存储指纹 (Store)
-7. 删除指纹 (Delete)
-8. 清空指纹库 (Empty)
-9. 查看触摸事件
-0. 退出
+本项目采用分阶段开发和测试方法：
 
-请选择:
+#### Stage 1: 基础驱动框架测试
+```bash
+./stage1_ioctl_test1_app
 ```
+测试内容：
+- 驱动加载和卸载
+- 设备节点创建
+- 设备独占访问
+- 基本文件操作
+
+#### Stage 2: 协议封装测试（无需硬件）
+```bash
+./stage2_protocol_test
+```
+测试内容：
+- 校验和计算
+- 数据包构造
+- 命令封装函数
+- 响应包解析
+
+#### Stage 3: UART通信测试（需要硬件）
+```bash
+./stage3_uart_test
+```
+测试内容：
+- UART设备打开
+- 数据包发送
+- 数据包接收
+- 超时处理
+
+#### Stage 4: GPIO中断测试（需要硬件）
+```bash
+./stage4_gpio_test
+```
+测试内容：
+- GPIO中断注册
+- 触摸事件检测
+- sysfs接口读取
+
+### 测试指南文档
+
+每个阶段都有详细的测试指南：
+- `STAGE1_TEST_GUIDE.md` - Stage 1测试指南
+- `STAGE2_TEST_GUIDE.md` - Stage 2测试指南
+- `STAGE3_TEST_GUIDE.md` - Stage 3测试指南
+- `STAGE4_TEST_GUIDE.md` - Stage 4测试指南
 
 ### GPIO中断测试
 
